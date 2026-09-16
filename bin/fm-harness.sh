@@ -228,6 +228,13 @@ harness_process_verdict() {  # <pid>
     # inherited launcher value, not an agy identity), so like muse it is
     # detected by ancestry alone.
     agy) echo "comm agy"; return ;;
+    # dirge is a Go-compiled single binary whose process name is exactly `dirge`
+    # (verified, dirge 0.1.x: `ps -o comm=` reports dirge from both its CLI and
+    # the model's bash tool). Anchored, never *dirge*, so unrelated commands
+    # cannot be misread as this harness. dirge publishes no harness-identity
+    # marker of its own (a live session carries no DIRGE_* variable), so like
+    # muse and agy it is detected by ancestry alone.
+    dirge) echo "comm dirge"; return ;;
     node*|python*)
       # Bare interpreter: match the harness name in its script path.
       args=$(ps -o args= -p "$pid" 2>/dev/null)
