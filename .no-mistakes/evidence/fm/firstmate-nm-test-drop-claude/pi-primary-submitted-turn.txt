@@ -1,0 +1,27 @@
+# Lab Pi primary, submitted turn (pane captured through TMUX_TMPDIR=<lab>/tmux tmux -L fm-lab capture-pane -p -t primary)
+# Proof the primary is a live agent, not a static screen: it accepted the typed prompt,
+# ran tools in the gate worktree, and streamed a real model answer.
+
+ If you just want orientation, /ahoy is the one that answers it.
+
+ skipped: adding a real /help skill — this answer covers it; add one when you
+ want it printed on demand rather than asked for.
+
+
+ ⁣FIRSTMATE_OP: v1 watcher: FIRSTMATE WATCHER WAKE: watcher: FAILED - Pi
+ extension could not restore watcher continuity after 5 retries
+ watcher: FAILED - refusing to arm from a disposable validation checkout:
+ /home/weiyiacc/.no-mistakes/worktrees/500396ed0571/01M43WHD47KRWE7JBM8V7S6SSK/
+ bin
+
+ Run bin/fm-wake-drain.sh first and handle the queued wake. Watcher continuity
+ is extension-owned.
+
+
+ Thinking...
+
+── ⠇ Working ───────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────────────────────────
+~/.no-mistakes/worktrees/500396ed0571/01M43WHD47KRWE7JBM8V7S6SSK (detached)
+↑23k ↓1.6k R62k CH96.7% 9.3%/262k (auto)           (magpie) group/swe-2 • medium

@@ -1,0 +1,25 @@
+### tmux -L fm-lab capture-pane -p -S - -t primary   (LAB=/tmp/fm-lab.YbgMHz, cwd=/home/weiyiacc/.no-mistakes/worktrees/500396ed0571/01M43WHD47KRWE7JBM8V7S6SSK)
+"*" range, not dependencies: typebox. Installed copies can bypass the extension
+loader and create duplicate runtime modules.
+
+
+ Warning: Extension package
+ "/home/weiyiacc/.pi/agent/npm/node_modules/pi-web-access/package.json":
+ Host-provided extension packages must be declared in peerDependencies with a
+ "*" range, not dependencies: typebox. Installed copies can bypass the
+ extension loader and create duplicate runtime modules.
+
+ Warning: tmux extended-keys-format is xterm. Pi works best with csi-u. Add
+ `set -g extended-keys-format csi-u` to ~/.tmux.conf and restart tmux.
+
+────────────────────────────────────────────────────────────────────────────────
+ Update Available
+ New version 1.0.2 is available. Run pi update
+ Changelog: https://pi.dev/changelog
+────────────────────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────────────────────────
+ping from gate test agent
+────────────────────────────────────────────────────────────────────────────────
+~/.no-mistakes/worktrees/500396ed0571/01M43WHD47KRWE7JBM8V7S6SSK (detached)
+0.0%/262k (auto)                                   (magpie) group/swe-2 • medium

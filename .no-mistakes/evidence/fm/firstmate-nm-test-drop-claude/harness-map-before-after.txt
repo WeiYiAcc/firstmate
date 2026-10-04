@@ -1,0 +1,12 @@
+# The changed Test block drives a live PI primary: before/after .no-mistakes.yaml harness map
+# (typed parse, not a string grep over prose)
+
+== BASE d05b364 ==
+harnesses: [claude, codex, cursor, grok, omp, opencode]
+claude offered: True | pi offered: None
+claude carved-out login paragraph: True
+
+== TARGET 6b7ebcb (HEAD of fm/firstmate-nm-test-drop-claude) ==
+harnesses: [codex, cursor, grok, omp, opencode, pi]
+claude offered: False | pi offered: pi
+claude carved-out login paragraph: False

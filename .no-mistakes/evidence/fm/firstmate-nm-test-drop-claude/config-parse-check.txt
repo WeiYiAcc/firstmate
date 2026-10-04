@@ -1,0 +1,10 @@
+test keys: ['evidence', 'instructions']
+test.evidence: {'store_in_repo': True}
+instructions type: str chars: 2752
+lines: 8
+harness -> launch command (parsed): {'pi': 'pi', 'codex': 'codex', 'cursor': 'cursor-agent', 'opencode': 'opencode', 'grok': 'grok', 'omp': 'omp'}
+claude present as a harness entry: False
+CLAUDE_CONFIG_DIR mentioned: False
+credential prohibition kept: True
+lab recipe kept: True
+pi launch command resolves on PATH: /home/weiyiacc/.local/share/mise/installs/npm-earendil-works-pi-coding-agent/latest/node_modules/.bin/pi

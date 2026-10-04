@@ -1,0 +1,79 @@
+# Pi-path real primary on the lab tmux socket, executed exactly as .no-mistakes.yaml test.instructions prescribe
+# worktree=/home/weiyiacc/.no-mistakes/worktrees/500396ed0571/01M43WHD47KRWE7JBM8V7S6SSK commit=6b7ebcb date=2026-10-05T00:51:52+08:00
+
+== operator credential-store mtimes BEFORE (read-only snapshot) ==
+== BEFORE ==
+/home/weiyiacc/.pi/agent/auth.json mtime=2026-10-03 20:41:18.552422264 +0800 size=2
+/home/weiyiacc/.pi/agent/models-store.json mtime=2026-10-05 00:47:34.874315355 +0800 size=937860
+session dirs touched in last 10min: 2
+
+$ LAB=$(mktemp -d "${TMPDIR:-/tmp}/fm-lab.XXXXXX")
+/tmp/fm-lab.P9v2Bm
+$ bin/fm-lab-home.sh create "$LAB"
+/tmp/fm-lab.P9v2Bm
+$ mkdir -p "$LAB/tmux"; touch "$LAB/config/supervision-host"
+.
+..
+.fm-lab-home
+config
+data
+projects
+state
+tmux
+
+$ env -u NO_MISTAKES_GATE -u FM_GATE_REFUSE_BYPASS -u FM_ROOT_OVERRIDE -u FM_STATE_OVERRIDE -u FM_DATA_OVERRIDE -u FM_CONFIG_OVERRIDE -u FM_PROJECTS_OVERRIDE TMUX_TMPDIR="$LAB/tmux" tmux -L fm-lab new-session -d -s primary -c "$PWD" -e FM_HOME="$LAB" pi
+$ TMUX_TMPDIR="$LAB/tmux" tmux -L fm-lab list-panes -a -F "#{pane_pid} #{pane_current_command} #{pane_width}x#{pane_height}"
+4158355 pi 80x24
+$ TMUX_TMPDIR="$LAB/tmux" tmux -L fm-lab show-environment -t primary | grep -E "^(FM_HOME|TMUX)="
+FM_HOME=/tmp/fm-lab.P9v2Bm
+
+== pane after boot: real Pi TUI registered, no sign-in or credential prompt ==
+"*" range, not dependencies: typebox. Installed copies can bypass the extension
+loader and create duplicate runtime modules.
+
+
+ Warning: Extension package
+ "/home/weiyiacc/.pi/agent/npm/node_modules/pi-web-access/package.json":
+ Host-provided extension packages must be declared in peerDependencies with a
+ "*" range, not dependencies: typebox. Installed copies can bypass the
+ extension loader and create duplicate runtime modules.
+
+ Warning: tmux extended-keys-format is xterm. Pi works best with csi-u. Add
+ `set -g extended-keys-format csi-u` to ~/.tmux.conf and restart tmux.
+
+────────────────────────────────────────────────────────────────────────────────
+ Update Available
+ New version 1.0.2 is available. Run pi update
+ Changelog: https://pi.dev/changelog
+────────────────────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────────────────────────
+~/.no-mistakes/worktrees/500396ed0571/01M43WHD47KRWE7JBM8V7S6SSK (detached)
+0.0%/262k (auto)                                   (magpie) group/swe-2 • medium
+
+$ TMUX_TMPDIR="$LAB/tmux" tmux -L fm-lab send-keys -t primary -l "drive the pi primary through the lab socket"
+== pane after driving input through the same socket ==
+ Changelog: https://pi.dev/changelog
+────────────────────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────────────────────────
+drive the pi primary through the lab socket
+────────────────────────────────────────────────────────────────────────────────
+~/.no-mistakes/worktrees/500396ed0571/01M43WHD47KRWE7JBM8V7S6SSK (detached)
+0.0%/262k (auto)                                   (magpie) group/swe-2 • medium
+
+$ TMUX_TMPDIR="$LAB/tmux" tmux -L fm-lab kill-server
+$ bin/fm-lab-home.sh teardown "$LAB"; rm -rf "$LAB"
+lab still present? ls: cannot access '/tmp/fm-lab.P9v2Bm': No such file or directory
+lab tmux server still running? 0
+
+== AFTER ==
+/home/weiyiacc/.pi/agent/auth.json mtime=2026-10-03 20:41:18.552422264 +0800 size=2
+/home/weiyiacc/.pi/agent/models-store.json mtime=2026-10-05 00:47:34.874315355 +0800 size=937860
+session dirs touched in last 10min: 2
+
+auth.json (the Pi credential store) is byte-identical and untouched by the run; only
+models-store.json (model cache) and session transcripts moved, which is the Pi-side
+equivalent of the incidental session files the deleted Claude carve-out paragraph described.
