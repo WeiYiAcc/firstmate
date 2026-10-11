@@ -13,3 +13,6 @@ __pycache__/
 config/
 
 .tools/
+.pi/settings.json
+.pi/git/
+.pi/npm/
