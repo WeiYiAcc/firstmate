@@ -3,6 +3,8 @@
 
 This file is the single source of truth for captain preferences that apply across all firstmate homes (primary and secondmates). The main home (cc-vps) owns the authoritative version; secondmate homes receive it read-only via `bin/fm-remote-inherit-push.sh`.
 
+It is read-only in secondmate homes and must not be edited there. New captain-preference discoveries are routed to the main firstmate through marked status or a document pointer.
+
 Local per-home preferences belong in `data/captain.md` (not shared, not synced).
 
 ## 沟通

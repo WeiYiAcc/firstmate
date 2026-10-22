@@ -1,7 +1,6 @@
 projects/
 state/
-data/
-!data/
+data/*
 !data/captain-shared.md
 scratchpad*
 .no-mistakes/
