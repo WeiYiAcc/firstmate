@@ -779,6 +779,26 @@ SH
   printf '%s\n' "$w"
 }
 
+# make_silent_peer_ssh <w> [answer-calls]: replace the probe world's ssh with a
+# peer that accepts the connection and then never answers - the 2026-11-01 shape
+# where sshd is up but the remote command never replies. Calls up to
+# <answer-calls> still answer normally, so a test can let readiness and the
+# state probe through and hang only the call that follows.
+make_silent_peer_ssh() {
+  local w=$1 answer=${2:-0} fakebin=$1/fakebin
+  cat > "$fakebin/ssh" <<SH
+#!/usr/bin/env bash
+printf '%s\n' "\$*" >> "\${FM_FAKE_SSH_LOG:?}"
+count=\$(wc -l < "\${FM_FAKE_SSH_LOG:?}")
+if [ "\$count" -gt $answer ]; then
+  exec sleep "\${FM_FAKE_SILENT_PEER_HANG_SECS:-120}"
+fi
+[ -z "\${FM_FAKE_REMOTE_REPLY:-}" ] || printf '%s\n' "\$FM_FAKE_REMOTE_REPLY"
+exit "\${FM_FAKE_REMOTE_RC:-0}"
+SH
+  chmod +x "$fakebin/ssh"
+}
+
 # probe_remote <w> <mode> [env...] -> "<status>|<state>|<kill>|<cause>|<where>|<reason>"
 probe_remote() {
   local w=$1 mode=$2; shift 2
@@ -840,6 +860,65 @@ test_remote_poll_probe_unreachable_preserves_route() {
   pass "poll probe: unreachable or inconclusive remote reads preserve the route"
 }
 
+# A remote peer that accepts the connection and then never answers must not
+# stall the supervision cycle: the bounded probe returns on its own, keeps the
+# route, and leaves the mate untouched.
+test_remote_poll_probe_bounds_a_silent_peer() {
+  local w out started elapsed reported bound=1
+  w=$(make_remote_probe_world probe-silent-peer)
+  make_silent_peer_ssh "$w"
+
+  started=$(date +%s)
+  out=$(probe_remote "$w" poll FM_REMOTE_CALL_TIMEOUT=$bound FM_FAKE_SILENT_PEER_HANG_SECS=120)
+  elapsed=$(( $(date +%s) - started ))
+
+  [ "$elapsed" -le 30 ] \
+    || fail "a peer that never answers must not stall one poll probe; it took ${elapsed}s"
+  case "$out" in
+    'skipped|unknown|0|||'*'route preserved on lab-host (state probe timed out after '*)
+      ;;
+    *) fail "a timed-out poll probe should preserve the route with an endpoint-and-elapsed diagnostic, got: $out" ;;
+  esac
+  reported=${out##*timed out after }
+  reported=${reported%%s*)}
+  case "$reported" in
+    '' | *[!0-9]*) fail "the timeout diagnostic must report the seconds actually spent, got: $out" ;;
+  esac
+  [ "$reported" -ge "$bound" ] \
+    || fail "the reported timeout elapsed ${reported}s is below the ${bound}s bound: $out"
+  [ "$(wc -l < "$w/ssh.log" | tr -d ' ')" -eq 1 ] \
+    || fail "one poll probe should still spend exactly one remote call: $(cat "$w/ssh.log")"
+  [ ! -e "$w/home/state/.secondmate-relaunch-rsm1" ] \
+    || fail "a timed-out probe must never register a relaunch attempt against the mate"
+  pass "poll probe: a peer that accepts the connection and never answers returns on its own bound, route preserved"
+}
+
+# The same bound covers the full-mode route revalidation, which runs only when a
+# remote endpoint already reads alive.
+test_remote_full_probe_bounds_a_silent_route_reply() {
+  local w out started elapsed
+  w=$(make_remote_probe_world probe-silent-route)
+  make_silent_peer_ssh "$w" 2
+
+  started=$(date +%s)
+  out=$(probe_remote "$w" full FM_REMOTE_CALL_TIMEOUT=1 \
+    FM_FAKE_SILENT_PEER_HANG_SECS=120 FM_FAKE_REMOTE_REPLY=alive)
+  elapsed=$(( $(date +%s) - started ))
+
+  [ "$elapsed" -le 30 ] \
+    || fail "a silent route reply must not stall the full probe; it took ${elapsed}s"
+  case "$out" in
+    'skipped|alive|0|||'*'route preserved on lab-host (route probe timed out after '*)
+      ;;
+    *) fail "a timed-out route revalidation should preserve the route with an endpoint-and-elapsed diagnostic, got: $out" ;;
+  esac
+  [ "$(wc -l < "$w/ssh.log" | tr -d ' ')" -eq 3 ] \
+    || fail "full mode should spend one readiness call, one state call, then the hung route call: $(cat "$w/ssh.log")"
+  [ ! -e "$w/home/state/.secondmate-relaunch-rsm1" ] \
+    || fail "a timed-out route probe must never register a relaunch attempt against the mate"
+  pass "full probe: a silent route reply returns on its own bound, route preserved"
+}
+
 test_tmux_agent_state_classifies
 test_tmux_agent_state_rejects_malformed_targets_before_probe
 test_herdr_agent_state_preserves_husk_classifier
@@ -863,5 +942,7 @@ test_relaunch_waits_for_other_mates_relaunch_lock
 test_sweep_refuses_relaunch_on_ledger_errors
 test_remote_poll_probe_maps_states
 test_remote_poll_probe_unreachable_preserves_route
+test_remote_poll_probe_bounds_a_silent_peer
+test_remote_full_probe_bounds_a_silent_route_reply
 
 echo "# all fm-secondmate-liveness tests passed"
